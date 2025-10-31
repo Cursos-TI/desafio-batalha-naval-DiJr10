@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h> // <--- INCLUSÃO NECESSÁRIA PARA USAR A FUNÇÃO abs()
+#include <stdlib.h> // Necessário para usar a função abs()
 
 // Definições para o tamanho máximo do tabuleiro (Nível Aventureiro/Mestre)
 #define TAMANHO_TABULEIRO 10
@@ -8,12 +8,22 @@
 #define AFETADO 1
 
 // Função auxiliar para exibir uma matriz
-void exibir_matriz(int matriz[][TAMANHO_TABULEIRO], int linhas, int colunas) {
+// NOTA: Para VLAs, a função de exibição precisa saber o tamanho da coluna.
+void exibir_matriz(int linhas, int colunas, int matriz[linhas][colunas]) {
     for (int i = 0; i < linhas; i++) {
         for (int j = 0; j < colunas; j++) {
             printf("%d ", matriz[i][j]);
         }
         printf("\n");
+    }
+}
+
+// Função auxiliar para inicializar a matriz com zeros
+void inicializar_habilidade(int linhas, int colunas, int matriz[linhas][colunas]) {
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            matriz[i][j] = 0;
+        }
     }
 }
 
@@ -26,7 +36,8 @@ int main() {
     printf("--- NÍVEL NOVATO: Tabuleiro 5x5 e Coordenadas ---\n");
     
     // Sugestão: Declare uma matriz bidimensional para representar o tabuleiro (Ex: int tabuleiro[5][5];).
-    int tabuleiro_novato[TAMANHO_NOVATO][TAMANHO_NOVATO] = {0};
+    int tabuleiro_novato[TAMANHO_NOVATO][TAMANHO_NOVATO] = {0}; // OK, TAMANHO_NOVATO é constante no escopo global
+    // ... (restante do código do Novato inalterado)
 
     // Navio 1 (Vertical - 2 posições: (1, 2) e (2, 2))
     int navio1_coords[2][2] = {{1, 2}, {2, 2}};
@@ -56,7 +67,7 @@ int main() {
     printf("\n--- NÍVEL AVENTUREIRO: Tabuleiro 10x10 com Diagonais ---\n");
     
     // Sugestão: Expanda o tabuleiro para uma matriz 10x10.
-    int tabuleiro_avent[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO] = {0};
+    int tabuleiro_avent[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO] = {0}; // OK, TAMANHO_TABULEIRO é constante no escopo global
     
     // Posicionamento dos 4 navios (0 = Vazio, 3 = Ocupado)
     
@@ -82,7 +93,8 @@ int main() {
 
     // Sugestão: Exiba o tabuleiro completo no console, mostrando 0 para posições vazias e 3 para posições ocupadas.
     printf("\nTabuleiro 10x10:\n");
-    exibir_matriz(tabuleiro_avent, TAMANHO_TABULEIRO, TAMANHO_TABULEIRO);
+    // Chamada ajustada da função exibir_matriz para VLA (embora este array não seja VLA, mantemos a consistência)
+    exibir_matriz(TAMANHO_TABULEIRO, TAMANHO_TABULEIRO, tabuleiro_avent); 
 
     // --------------------------------------------------------------------------------
 
@@ -90,22 +102,19 @@ int main() {
     printf("\n--- NÍVEL MESTRE: Habilidades Especiais (3x5) ---\n");
     
     const int HABILIDADE_LINHAS = 3;
-    const int HABILIDADE_COLUNAS = 5; // A variável em si está correta.
+    const int HABILIDADE_COLUNAS = 5; 
     const int CENTRO_LINHA = 1; // Para matriz 3x5
     const int CENTRO_COLUNA = 2; // Para matriz 3x5
     
-    // Matriz para simular a área de efeito da habilidade (3x5 é um exemplo)
-    int habilidade[HABILIDADE_LINHAS][HABILIDADE_COLUNAS] = {0};
+    // Correção do Erro de Compilação: VLA não pode ser inicializada com lista {0}
+    // Apenas declaramos a matriz, ela será inicializada via função.
+    int habilidade[HABILIDADE_LINHAS][HABILIDADE_COLUNAS]; // AQUI ESTÁ A CORREÇÃO
 
     // 1. Habilidade em Cruz (Centro: [1][2])
     printf("\nHabilidade em Cruz (1 = Atingido):\n");
     
-    // Reinicia a matriz
-    for (int i = 0; i < HABILIDADE_LINHAS; i++) {
-        for (int j = 0; j < HABILIDADE_COLUNAS; j++) {
-            habilidade[i][j] = 0;
-        }
-    }
+    // Reinicia a matriz (USANDO FUNÇÃO AUXILIAR)
+    inicializar_habilidade(HABILIDADE_LINHAS, HABILIDADE_COLUNAS, habilidade);
     
     // Sugestão: Utilize estruturas de repetição aninhadas para preencher as áreas afetadas.
     for (int i = 0; i < HABILIDADE_LINHAS; i++) {
@@ -116,18 +125,14 @@ int main() {
             }
         }
     }
-    exibir_matriz(habilidade, HABILIDADE_LINHAS, HABILIDADE_COLUNAS);
+    exibir_matriz(HABILIDADE_LINHAS, HABILIDADE_COLUNAS, habilidade);
 
 
     // 2. Habilidade em Cone (Crescimento a partir da linha superior)
     printf("\nHabilidade em Cone (1 = Atingido):\n");
 
-    // Reinicia a matriz
-    for (int i = 0; i < HABILIDADE_LINHAS; i++) {
-        for (int j = 0; j < HABILIDADE_COLUNAS; j++) {
-            habilidade[i][j] = 0;
-        }
-    }
+    // Reinicia a matriz (USANDO FUNÇÃO AUXILIAR)
+    inicializar_habilidade(HABILIDADE_LINHAS, HABILIDADE_COLUNAS, habilidade);
 
     for (int i = 0; i < HABILIDADE_LINHAS; i++) {
         for (int j = 0; j < HABILIDADE_COLUNAS; j++) {
@@ -137,23 +142,18 @@ int main() {
             }
         }
     }
-    exibir_matriz(habilidade, HABILIDADE_LINHAS, HABILIDADE_COLUNAS);
+    exibir_matriz(HABILIDADE_LINHAS, HABILIDADE_COLUNAS, habilidade);
 
 
     // 3. Habilidade em Octaedro (ou "Losango" no 2D)
     printf("\nHabilidade em Octaedro (1 = Atingido):\n");
     
-    // Reinicia a matriz
-    for (int i = 0; i < HABILIDADE_LINHAS; i++) {
-        for (int j = 0; j < HABILIDADE_COLUNAS; j++) {
-            habilidade[i][j] = 0;
-        }
-    }
+    // Reinicia a matriz (USANDO FUNÇÃO AUXILIAR)
+    inicializar_habilidade(HABILIDADE_LINHAS, HABILIDADE_COLUNAS, habilidade);
 
     for (int i = 0; i < HABILIDADE_LINHAS; i++) {
         for (int j = 0; j < HABILIDADE_COLUNAS; j++) {
             // Lógica para Octaedro (usando Distância de Manhattan)
-            // A função abs() exige #include <stdlib.h>
             int dist_manhattan = abs(i - CENTRO_LINHA) + abs(j - CENTRO_COLUNA);
             
             if (dist_manhattan <= 1) { 
@@ -161,7 +161,7 @@ int main() {
             }
         }
     }
-    exibir_matriz(habilidade, HABILIDADE_LINHAS, HABILIDADE_COLUNAS);
+    exibir_matriz(HABILIDADE_LINHAS, HABILIDADE_COLUNAS, habilidade);
 
     printf("\n****************************************\n");
     printf("Fim do Desafio Batalha Naval - Mestre.\n");
